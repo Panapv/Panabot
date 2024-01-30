@@ -25,6 +25,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=get_weather()) 
 
+# Esta función devolde a imaxen da nasa do día
+async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    get_apod();
+    img = open('./input/apod', 'wb')
+    await context.bot.send_message(chat_id=update.effective_chat.id, document=img) 
 
 if __name__ == '__main__':
     # Start the application to operate the bot
@@ -36,7 +41,11 @@ if __name__ == '__main__':
 
     # Handler da api meteoroloxica
     weather_handler = CommandHandler('weather', weather)
-    application.add_handler(weather_handler)    
+    application.add_handler(weather_handler)
+
+    # Handler da api da nasa
+    apod_handler = CommandHandler('apod', apod)
+    application.add_handler(apod_handler) 
 
     # Keeps the application running
     application.run_polling()
