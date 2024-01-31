@@ -14,9 +14,13 @@ def get_weather():
 
 # Función que devolve unha imaxe a traves da api da nasa.
 def get_apod():
-  url = 'https://api.nasa.gov/planetary/apod.jpg';
+  url = 'https://api.nasa.gov/planetary/apod';
   response = requests.get(url, params={'api_key':'hMcVEIZB3yVAw5r5hrNTB6iCiUDAfIn8tdyRhot6'});
   img_url = response.json()['hdurl'];
   response = requests.get(img_url);
-  with('./input/apod') as archivo:
-     archivo.write(response.content);
+  if response.status_code != 200:
+     return False;
+  else:
+    with open('apod.jpg', 'wb') as img:
+      img.write(response.content);
+    return True;

@@ -27,9 +27,11 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Esta función devolde a imaxen da nasa do día
 async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    get_apod();
-    img = open('./input/apod.jpg', 'wb')
-    await context.bot.send_message(chat_id=update.effective_chat.id, document=img) 
+    if get_apod():
+        img = open('apod.jpg', 'rb')
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Non foi posible acceder a páxina') 
 
 if __name__ == '__main__':
     # Start the application to operate the bot
