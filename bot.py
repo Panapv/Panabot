@@ -28,7 +28,7 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Esta función devolde a imaxen da nasa do día
 async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
     get_apod();
-    img = open('./input/apod', 'wb')
+    img = open('./input/apod.jpg', 'wb')
     await context.bot.send_message(chat_id=update.effective_chat.id, document=img) 
 
 if __name__ == '__main__':
