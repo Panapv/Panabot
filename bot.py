@@ -27,11 +27,16 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Esta función devolde a imaxen da nasa do día
 async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if get_apod():
-        img = open('apod.jpg', 'rb')
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img)
+    res, exp, title = get_apod();
+    if res.status_code != 200:
+     await context.bot.send_message(chat_id=update.effective_chat.id, text='Non se pudo conectar ca páxina') 
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Non foi posible acceder a páxina') 
+        img = open('apod.jpg', 'rb')
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=f'Título: {title}\n"{exp}"') 
+            
+# Esta función devolde un pequeno parte meteorolóxico da localidade de Portomarín
+async def joke(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_joke()) 
 
 if __name__ == '__main__':
     # Start the application to operate the bot
@@ -47,7 +52,11 @@ if __name__ == '__main__':
 
     # Handler da api da nasa
     apod_handler = CommandHandler('apod', apod)
-    application.add_handler(apod_handler) 
+    application.add_handler(apod_handler)
+
+    # Handler da api da nasa
+    joke_handler = CommandHandler('joke', joke)
+    application.add_handler(joke_handler) 
 
     # Keeps the application running
     application.run_polling()

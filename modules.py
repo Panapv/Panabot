@@ -17,10 +17,12 @@ def get_apod():
   url = 'https://api.nasa.gov/planetary/apod';
   response = requests.get(url, params={'api_key':'hMcVEIZB3yVAw5r5hrNTB6iCiUDAfIn8tdyRhot6'});
   img_url = response.json()['hdurl'];
-  response = requests.get(img_url);
-  if response.status_code != 200:
-     return False;
-  else:
-    with open('apod.jpg', 'wb') as img:
-      img.write(response.content);
-    return True;
+  res = requests.get(img_url);
+  with open('apod.jpg', 'wb') as img:
+    img.write(res.content);
+  return res, response.json()['explanation'], response.json()['title']
+
+def get_joke():
+  url = 'https://v2.jokeapi.dev/joke/Any?type=single';
+  response = requests.get(url);
+  return response.json()['joke'];
