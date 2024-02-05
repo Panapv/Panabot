@@ -38,6 +38,22 @@ async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def joke(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=get_joke()) 
 
+# Define la función para manejar archivos
+async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Verifica si el mensaje tiene un documento adjunto
+    if update.message.document:
+        file = await context.bot.get_file(update.message.document)
+        filename = update.message.document.file_name
+        await file.download_to_drive(filename)
+        if 'csv' in filename:
+            answer = get_info(filename);
+        filename = convert(filename)
+        await context.bot.send_document(chat_id=update.effective_chat.id, document=open(filename, 'rb'))
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=answer) 
+    else:
+        update.message.reply_text('Por favor, envía un archivo válido.')
+
+
 if __name__ == '__main__':
     # Start the application to operate the bot
     application = ApplicationBuilder().token(TOKEN).build()
@@ -57,6 +73,9 @@ if __name__ == '__main__':
     # Handler da api da nasa
     joke_handler = CommandHandler('joke', joke)
     application.add_handler(joke_handler) 
+
+    # Handler de archivos csv y json
+    application.add_handler(MessageHandler(filters.Document.ALL, handle_file))
 
     # Keeps the application running
     application.run_polling()
