@@ -2,6 +2,7 @@ import logging
 import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.error import BadRequest
 from modules import *
 
 # Authentication to manage the bot
@@ -55,8 +56,19 @@ async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Esta función devolde un pequeno parte meteorolóxico da localidade de Portomarín
 async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_news()) 
-
+    try:
+        if context.args:
+            limit = ''.join(context.args);
+            limit = int(limit);
+        else:
+            limit = 0;
+        try:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=get_news(limit)) 
+        except BadRequest as e:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de noticias pedido supera el límite.')
+    except ValueError:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Debes de indicar un número de noticias.')
+    
 if __name__ == '__main__':
     # Start the application to operate the bot
     application = ApplicationBuilder().token(TOKEN).build()

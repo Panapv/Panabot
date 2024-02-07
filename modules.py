@@ -1,4 +1,5 @@
 import requests;
+import random;
 import pandas as pd;
 from bs4 import BeautifulSoup;
 
@@ -49,5 +50,25 @@ def get_info(path):
   res += f'\n\n{df.describe()}';
   return res;
 
-def get_news():
-  pass;
+def get_news(limit):
+  url = 'https://www.elprogreso.es';
+  response = requests.get(url)
+  soup = BeautifulSoup(response.text, 'html.parser')
+
+  sp = soup.findAll('a', href=lambda value: value and '/articulo/' in value)
+  dicc = {};
+  for i in sp:
+    title, href = i.get('title'), i.get('href');
+    if 'https://' not in href: href = url+href;
+    dicc[title] = href;
+  
+  res = '';
+  if limit != 0:
+    for clave, valor in list(dicc.items())[:limit]:
+      res += f'Título: {clave}\n{valor}';
+  else:
+    limit = random.randint(0, len(dicc))
+    for clave, valor in list(dicc.items())[limit:limit+1]:
+      res += f'Título: {clave}\n{valor}';
+
+  return res;
