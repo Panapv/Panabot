@@ -1,5 +1,6 @@
 import requests;
 import pandas as pd;
+from bs4 import BeautifulSoup;
 
 # Función que accede a api de meteogaliza e devolve unha información meteorolóxica básica
 def get_weather():
@@ -35,7 +36,7 @@ def convert(path):
     filename += '.json';
     df.to_json(filename);
   elif 'json' in path:
-    df = pd.read_json(path);
+    df = pd.read_json(path, orient='records');
     filename += '.csv';
     df.to_csv(filename, index=False);
   return filename;
@@ -47,3 +48,6 @@ def get_info(path):
     res += f'{df.columns[i]}: {df.dtypes[i]}\t';
   res += f'\n\n{df.describe()}';
   return res;
+
+def get_news():
+  pass;

@@ -53,6 +53,9 @@ async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         update.message.reply_text('Por favor, envía un archivo válido.')
 
+# Esta función devolde un pequeno parte meteorolóxico da localidade de Portomarín
+async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=get_news()) 
 
 if __name__ == '__main__':
     # Start the application to operate the bot
@@ -76,6 +79,10 @@ if __name__ == '__main__':
 
     # Handler de archivos csv y json
     application.add_handler(MessageHandler(filters.Document.ALL, handle_file))
+
+    # Handler de scraping dun periódico
+    periodico_handler = CommandHandler('news', news)
+    application.add_handler(periodico_handler) 
 
     # Keeps the application running
     application.run_polling()
