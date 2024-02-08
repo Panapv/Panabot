@@ -54,21 +54,36 @@ async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         update.message.reply_text('Por favor, envía un archivo válido.')
 
-# Esta función devolde un pequeno parte meteorolóxico da localidade de Portomarín
+# Esta función devolde unha listaxe de notizas do diario El Progreso
 async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         if context.args:
             limit = ''.join(context.args);
             limit = int(limit);
         else:
-            limit = 0;
+            limit = 1;
         try:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=get_news(limit)) 
         except BadRequest as e:
             await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de noticias pedido supera el límite.')
     except ValueError:
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Debes de indicar un número de noticias.')
-    
+
+# Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
+async def movies(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        if context.args:
+            limit = ''.join(context.args);
+            limit = int(limit);
+        else:
+            limit = 1;
+        try:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=get_movies(limit)) 
+        except BadRequest as e:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de películas pedido supera el límite.')
+    except ValueError:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Debes de indicar un número de películas.')
+
 if __name__ == '__main__':
     # Start the application to operate the bot
     application = ApplicationBuilder().token(TOKEN).build()
@@ -94,7 +109,11 @@ if __name__ == '__main__':
 
     # Handler de scraping dun periódico
     periodico_handler = CommandHandler('news', news)
-    application.add_handler(periodico_handler) 
+    application.add_handler(periodico_handler)
+
+    # Handler de scraping dun periódico
+    movies_handler = CommandHandler('movies', movies)
+    application.add_handler(movies_handler) 
 
     # Keeps the application running
     application.run_polling()

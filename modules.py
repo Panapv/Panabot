@@ -57,18 +57,41 @@ def get_news(limit):
 
   sp = soup.findAll('a', href=lambda value: value and '/articulo/' in value)
   dicc = {};
+  lista_titulos = [];
   for i in sp:
     title, href = i.get('title'), i.get('href');
     if 'https://' not in href: href = url+href;
     dicc[title] = href;
-  
+    if title not in lista_titulos: lista_titulos += [title];
+
   res = '';
-  if limit != 0:
-    for clave, valor in list(dicc.items())[:limit]:
-      res += f'Título: {clave}\n{valor}';
-  else:
-    limit = random.randint(0, len(dicc))
-    for clave, valor in list(dicc.items())[limit:limit+1]:
-      res += f'Título: {clave}\n{valor}';
+  for i in range(limit):
+    n = random.randint(0, len(lista_titulos)-1);
+    clave = lista_titulos[n];
+    res += f'Título: {clave}\n{dicc[clave]}\n';
+
+  return res;
+
+  def get_movies(limit):
+  url = 'https://yelmocines.es';
+  response = requests.get(url)
+  soup = BeautifulSoup(response.text, 'html.parser')
+  soup = soup.find('section', {'class':'cartelera uPanel'}).find('ul',{'class':"listCartelera tituloPelicula cf"})
+  sp = soup.findAll('li')
+
+  dicc = {};
+  lista_titulos = [];
+
+  for i in sp:
+    title, href = i.find('h1'), i.find('href');
+    if 'https://' not in href: href = url+href;
+    dicc[title] = href;
+    if title not in lista_titulos: lista_titulos += [title];
+
+  res = '';
+  for i in range(limit):
+    n = random.randint(0, len(lista_titulos)-1);
+    clave = lista_titulos[n];
+    res += f'Título: {clave}\n{dicc[clave]}\n';
 
   return res;
