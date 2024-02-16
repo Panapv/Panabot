@@ -2,7 +2,7 @@ import logging
 import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
-from telegram.error import BadRequest
+from telegram.error import BadRequest, TimedOut
 from modules import *
 
 # Authentication to manage the bot
@@ -28,13 +28,17 @@ async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Esta función devolde a imaxen da nasa do día
 async def apod(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    res, exp, title = get_apod();
-    if res.status_code != 200:
-     await context.bot.send_message(chat_id=update.effective_chat.id, text='Non se pudo conectar ca páxina') 
-    else:
-        img = open('apod.jpg', 'rb')
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=f'Título: {title}\n"{exp}"') 
-            
+    try:
+        res, exp, title = get_apod();
+        if res.status_code != 200:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text='Non se pudo conectar ca páxina') 
+        else:
+            img = open('apod.jpg', 'rb')
+            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=f'Título: {title}\n"{exp}"') 
+    except telegram.TimedOut:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Parece que a API esta caída, proba máis tarde') 
+
+
 # Esta función devolde un pequeno parte meteorolóxico da localidade de Portomarín
 async def joke(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=get_joke()) 
@@ -72,21 +76,36 @@ async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
 async def movies(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        if context.args:
-            limit = ''.join(context.args);
-            limit = int(limit);
-        else:
-            limit = 1;
-        try:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=get_movies(limit)) 
-        except BadRequest as e:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de películas pedido supera el límite.')
-    except ValueError:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text='Debes de indicar un número de películas.')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=get_movies()) 
+    except BadRequest as e:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de películas pedido supera el límite.')
+  
+# Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
+async def sql(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        img = open('durodecojones.jpg', 'rb')
+        res = get_sql()
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=res) 
+    except BadRequest as e:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Algo ha salido mal.')
+    except TimedOut as e:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Se ha superado el tiempo límite de la petición.')
+
+# Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
+async def arkham(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        get_arkham(2)
+        img = open('arkham.png', 'rb')
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img) 
+    except BadRequest as e:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Algo ha salido mal.')
+    except TimedOut as e:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text='Se ha superado el tiempo límite de la petición.')
+    
 
 if __name__ == '__main__':
     # Start the application to operate the bot
-    application = ApplicationBuilder().token(TOKEN).build()
+    application = ApplicationBuilder().token(TOKEN).read_timeout(30).write_timeout(30).build()
 
     # Handler to manage the start command
     start_handler = CommandHandler('start', start)
@@ -114,6 +133,14 @@ if __name__ == '__main__':
     # Handler de scraping dun periódico
     movies_handler = CommandHandler('movies', movies)
     application.add_handler(movies_handler) 
+
+    # Handler dunha consulta a unha base de datos
+    sql_handler = CommandHandler('sql', sql)
+    application.add_handler(sql_handler)
+
+    # Handler dunha consulta a unha base de datos
+    arkham_handler = CommandHandler('arkham', arkham)
+    application.add_handler(arkham_handler) 
 
     # Keeps the application running
     application.run_polling()
