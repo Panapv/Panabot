@@ -80,21 +80,20 @@ async def movies(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except BadRequest as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text='El número de películas pedido supera el límite.')
   
-# Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
+# Esta función devolde o número e o inferno ao que pertenece o usuario
 async def sql(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        img = open('durodecojones.jpg', 'rb')
-        res = get_sql()
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=res) 
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=get_sql()) 
     except BadRequest as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Algo ha salido mal.')
     except TimedOut as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Se ha superado el tiempo límite de la petición.')
 
-# Esta función devolde unha listaxe das peliculas en cartelera de Yelmo Cines
+# Esta función devolde unha carta aleatoria do xogo Arkham Horror LCG
 async def arkham(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        get_arkham(2)
+        n = random.randint(0,182)
+        get_arkham(n)
         img = open('arkham.png', 'rb')
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img) 
     except BadRequest as e:
@@ -138,7 +137,7 @@ if __name__ == '__main__':
     sql_handler = CommandHandler('sql', sql)
     application.add_handler(sql_handler)
 
-    # Handler dunha consulta a unha base de datos
+    # Handler de la propuesta propia (API y Scraping)
     arkham_handler = CommandHandler('arkham', arkham)
     application.add_handler(arkham_handler) 
 
